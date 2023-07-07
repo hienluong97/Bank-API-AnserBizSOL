@@ -1,0 +1,517 @@
+#利用API
+# https://portal.opencanvas.ne.jp/api/bizsolapilist/
+
+@url=https://sample.apigw.opencanvas.ne.jp/bizsol/v1/banks/0034/
+
+@authorization = Bearer 7d0e8fddb23a40a2b5f73c2771e9c4c7
+
+@account_id = 0000000000001
+
+@transaction_id = 161001000000001
+
+#OAuth
+#API連携認証 - 利用者に認証・認可を求め、認可の結果を受け取る。
+GET {{url}}/oauth/auth
+?response_type=code
+&client_id=00000000
+&redirect_uri=https://portal.opencanvas.ne.jp/api/
+&state=test
+&service_level=3
+&permission_type=ON_SERVICE_SELECT
+&scope=balance_inquiry
+
+###
+
+# アクセストークン取得・再発行
+POST {{url}}/oauth/token
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic MDAwMDAwMDA6YWJjZGVm
+
+&grant_type=authorization_code
+&code=cb46420e53c24580a4c4e0fe8f390575
+
+
+###
+#トークン失効  - トークン失効の要求を行う。
+POST {{url}}/oauth/revoke
+Content-Type:  application/x-www-form-urlencoded
+Authorization: Basic MDAwMDAwMDA6YWJjZGVm
+
+&token=7d0e8fddb23a40a2b5f73c2771e9c4c7
+&contractor_id=0000000000000000AG0123456789A001
+
+###
+
+#Corporations
+# 企業情報照会
+GET {{url}}/corporations
+?client_id=22222222
+&contractor_id=0000000000000000AG0123456789A001
+&target_service=20
+Authorization: {{authorization}}
+
+###
+
+#Users
+# 利用者情報照会
+GET {{url}}/users
+?client_id=22222222
+&contractor_id=0000000000000000AG0123456789A001
+&target_service=20
+Authorization: {{authorization}}
+###
+
+#Accounts(照会系業務)
+#残高照会（全口座）- 利用者が保有する全口座の残高を照会する。
+GET {{url}}/accounts
+?client_id=00000000
+&contractor_id=0000000000000000AG0123456789A001
+Authorization: {{authorization}}
+###
+
+#残高照会（口座指定）- 指定した口座の残高を照会する。
+GET {{url}}/accounts/{{account_id}}
+?client_id=00000000
+&contractor_id=0000000000000000AG0123456789A001
+Authorization: {{authorization}}
+###
+
+#入出金明細照会（ANSER）- 指定した口座の入出金明細情報をリアルタイムに照会する。
+GET {{url}}/accounts/{{account_id}}/transactions
+?client_id=00000000
+&contractor_id=0000000000000000AG0123456789A001
+&service_id=470A
+Authorization: {{authorization}}
+###
+
+#入出金明細照会（全銀）- 指定した口座のAnserBizSOLセンタに蓄積された入出金明細情報を一括して照会する。
+GET {{url}}/accounts/{{account_id}}/transactions_jba
+?client_id=00000000
+&contractor_id=0000000000000000AG0123456789A001
+&service_id=470A
+Authorization: {{authorization}}
+###
+
+#振込入金明細照会（ANSER）- 指定した口座の振込入金明細情報をリアルタイムに照会する。
+GET {{url}}/accounts/{{account_id}}/deposit_transactions
+?client_id=00000000
+&contractor_id=0000000000000000AG0123456789A001
+&service_id=470A
+Authorization: {{authorization}}
+###
+
+#振込入金明細照会（全銀）- 指定した口座のAnserBizSOLセンタに蓄積された振込入金明細情報を一括して照会可能とする。
+GET {{url}}/accounts/{{account_id}}/deposit_transactions
+?client_id=00000000
+&contractor_id=0000000000000000AG0123456789A001
+&service_id=470A
+Authorization: {{authorization}}
+###
+
+#口座振替結果照会 - 指定した口座の口座振替結果を照会する。
+GET {{url}}/accounts/{{account_id}}/deposit_transactions
+?client_id=00000000
+&contractor_id=0000000000000000AG0123456789A001
+&transaction_category_type=4
+Authorization: {{authorization}}
+###
+
+#口座振替手数料照会 - 指定した口座の口座振替手数料を照会する。
+GET {{url}}/accounts/direct_debits_fee
+?client_id=00000000
+&contractor_id=0000000000000000AG0123456789A001
+&transaction_category_type=1
+Authorization: {{authorization}}
+###
+
+#ＥＤＩ情報照会 - 拡張EDIの情報を照会する。
+GET {{url}}/accounts/direct_debits_fee
+?client_id=00000000
+&contractor_id=0000000000000000AG0123456789A001
+&edi_key=入出金明細照会
+Authorization: {{authorization}}
+###
+
+
+#Transfers(依頼データ登録・照会系業務)
+# 総合振込依頼データの登録
+POST  {{url}}/bulk_transfers
+Content-Type: application/json
+Authorization: {{authorization}}
+
+{
+  "client_id": "00000000",
+  "contractor_id": "0000000000000000AG0123456789A001",
+  "temporary_transaction_id": "S17100700000016",
+  "warning_data_fixed_flag": true,
+  "warning_check_type": "1100000000",
+  "extension_edi_utilization_flag": true,
+  "fixed_request_data": {
+    "transaction_notes": "10月1日振込",
+    "category_code": "21",
+    "remitter_code": "1234567891",
+    "remitter_name": "ABCｼｮｳｼﾞ",
+    "effort_date": "04-01",
+    "remitting_bank_code": "0034",
+    "remitting_bank_name": "seven bank",
+    "remitting_branch_code": "115",
+    "remitting_bank_branch_name": "秋葉原支店",
+    "remitting_account_type_code": "01",
+    "remitting_account_number": "1100001",
+    "dummy_header": "ｷﾝﾕｳｷｶﾝﾚﾝｹｲｼﾞｮｳﾎｳ",
+    "transactions": [
+      {
+        "item_id": "1",
+        "beneficiary_bank_code": "1234",
+        "beneficiary_bank_name": "1234ｷﾞﾝｺｳ",
+        "beneficiary_branch_code": "115",
+        "beneficiary_branch_name": "ﾄｳｷｮｳﾎﾝﾃﾝ",
+        "clearing_house_number": "0000",
+        "account_type_code": "01",
+        "account_number": "1100001",
+        "beneficiary_name": "123ｼﾖｳｶｲ",
+        "transfer_amount": 100000,
+        "new_code": "1",
+        "customer_code1": "0120931503",
+        "customer_code2": "4789264425",
+        "edi_info": "01209315034789264425",
+        "edi_xml": [
+          "支払通知番号:1111111111111↓支払通知発行日:2018年12月25日↓"
+        ],
+        "transfer_designated_type": "7",
+        "identification": "Y",
+        "dummy": "ﾀﾞﾐｰｴﾘｱ"
+      }
+    ],
+    "total_count": 10,
+    "total_amount": 200000,
+    "dummy_trailer": "ｷﾝﾕｳｷｶﾝﾚﾝｹｲｼﾞｮｳﾎｳ",
+    "approval_pattern_type": "single_approval",
+    "first_approver_code": "Z001",
+    "second_approver_code": "Z002",
+    "comment": "コメント"
+  }
+}
+
+###
+
+# 給与・賞与振込依頼データ登録
+POST  {{url}}/payroll_transfers
+Content-Type: application/json
+Authorization: {{authorization}}
+
+{
+  "client_id": "22222222",
+  "contractor_id": "0000000000000000AG0123456789A001",
+  "temporary_transaction_id": "S17100700000016",
+  "warning_data_fixed_flag": true,
+  "warning_check_type": "1100000000",
+  "fixed_request_data": {
+    "transaction_notes": "10月1日振込",
+    "category_code": "12",
+    "remitter_code": "1234567891",
+    "remitter_name": "ABCｼｮｳｼﾞ",
+    "effort_date": "04-01",
+    "remitting_bank_code": "1234",
+    "remitting_bank_name": "1234ｷﾞﾝｺｳ",
+    "remitting_branch_code": "115",
+    "remitting_bank_branch_name": "ﾄｳｷｮｳﾎﾝﾃﾝ",
+    "remitting_account_type_code": "01",
+    "remitting_account_number": "1100001",
+    "dummy_header": "ｷﾝﾕｳｷｶﾝﾚﾝｹｲｼﾞｮｳﾎｳ",
+    "transactions": [
+      {
+        "item_id": "1",
+        "beneficiary_bank_code": "1234",
+        "beneficiary_bank_name": "1234ｷﾞﾝｺｳ",
+        "beneficiary_branch_code": "115",
+        "beneficiary_branch_name": "ﾄｳｷｮｳﾎﾝﾃﾝ",
+        "clearing_house_number": "0000",
+        "account_type_code": "01",
+        "account_number": "1100001",
+        "beneficiary_name": "123ｼﾖｳｶｲ",
+        "transfer_amount": 100000,
+        "new_code": "1",
+        "employee_number": "0120931503",
+        "affiliation_code": "4789264425",
+        "dummy": "ﾀﾞﾐｰｴﾘｱ"
+      }
+    ],
+    "total_count": 10,
+    "total_amount": 200000,
+    "dummy_trailer": "ｷﾝﾕｳｷｶﾝﾚﾝｹｲｼﾞｮｳﾎｳ",
+    "approval_pattern_type": "single_approval",
+    "first_approver_code": "Z001",
+    "second_approver_code": "Z002",
+    "comment": "コメント"
+  }
+}
+
+###
+
+# 振込振替依頼データ登録・振込振替依頼データの登録を行う。
+POST  {{url}}/transfers
+Content-Type: application/json
+Authorization: {{authorization}}
+
+{
+  "client_id": "00000000",
+  "use_media": "1",
+  "contractor_id": "0000000000000000AG0123456789A001",
+  "temporary_transaction_id": "S17100700000016",
+  "warning_data_fixed_flag": true,
+  "warning_check_type": "1100000000",
+  "fixed_request_data": {
+    "transfer_designated_date": "2018-04-01",
+    "transaction_notes": "10月1日振込",
+    "transfer_identification_flag": "1",
+    "remitting_bank_code": "1234",
+    "remitting_bank_name": "1234ｷﾞﾝｺｳ",
+    "remitting_branch_code": "115",
+    "remitting_bank_branch_name": "ﾄｳｷｮｳﾎﾝﾃﾝ",
+    "remitting_account_type_code": "01",
+    "remitting_account_number": "1100001",
+    "remitter_name": "ABCｼｮｳｼﾞ",
+    "transactions": [
+      {
+        "item_id": "1",
+        "beneficiary_bank_code": "1234",
+        "beneficiary_bank_name": "1234ｷﾞﾝｺｳ",
+        "beneficiary_branch_code": "115",
+        "beneficiary_branch_name": "ﾄｳｷｮｳﾎﾝﾃﾝ",
+        "account_type_code": "01",
+        "account_number": "1100001",
+        "beneficiary_name": "123ｼﾖｳｶｲ",
+        "payment_amount": 100000,
+        "fee_paid_by_type": "0",
+        "payment_fee_of_beneficiary": 1000,
+        "edi_info": "01209315034789264425",
+        "edi_info_type": "1"
+      }
+    ],
+    "total_count": 10,
+    "total_amount": "100000",
+    "approval_pattern_type": "double_approval_with_order",
+    "first_approver_code": "Z001",
+    "second_approver_code": "Z002",
+    "comment": "コメント"
+  }
+}
+
+###
+
+
+# 口座振替依頼データ登録・口座振替依頼データの登録を行う。
+POST  {{url}}/direct_debits
+Content-Type: application/json
+Authorization: {{authorization}}
+
+{
+  "client_id": "22222222",
+  "contractor_id": "0000000000000000AG0123456789A001",
+  "transaction_category_type": "1",
+  "temporary_transaction_id": "S17100700000016",
+  "warning_data_fixed_flag": true,
+  "warning_check_type": "1100000000",
+  "fixed_request_data": {
+    "transaction_notes": "10月1日支払",
+    "category_code": "91",
+    "consignor_code": "1234567891",
+    "consignor_name": "ABCｼｮｳｼﾞ",
+    "direct_debit_date": "2018-04-01",
+    "transaction_bank_code": "1234",
+    "transaction_bank_name": "1234ｷﾞﾝｺｳ",
+    "transaction_branch_code": "115",
+    "transaction_branch_name": "ﾄｳｷｮｳﾎﾝﾃﾝ",
+    "account_type_code": "01",
+    "account_number": "1100001",
+    "dummy_header": "ｷﾝﾕｳｷｶﾝﾚﾝｹｲｼﾞｮｳﾎｳ",
+    "transactions": [
+      {
+        "item_id": "1",
+        "direct_debit_bank_code": "1234",
+        "direct_debit_bank_name": "1234ｷﾞﾝｺｳ",
+        "direct_debit_branch_code": "115",
+        "direct_debit_branch_name": "ﾄｳｷｮｳﾎﾝﾃﾝ",
+        "dummy1": "ﾀﾞﾐｰ",
+        "account_type_code": "01",
+        "account_number": "1100001",
+        "depositor": "123ｼﾖｳｶｲ",
+        "direct_debit_amount": 100000,
+        "new_code": "1",
+        "customer_number": "123456789012",
+        "credit_transfer_result_code": "0",
+        "dummy2": "ﾀﾞﾐｰｴﾘｱ"
+      }
+    ],
+    "total_count": 10,
+    "total_amount": 100000,
+    "credit_transferred_count": 8,
+    "credit_transferred_amount": 70000,
+    "non_transferable_count": 2,
+    "non_transferable_amount": 30000,
+    "dummy_trailer": "ｷﾝﾕｳｷｶﾝﾚﾝｹｲｼﾞｮｳﾎｳ",
+    "approval_pattern_type": "single_approval",
+    "first_approver_code": "Z001",
+    "second_approver_code": "Z002",
+    "comment": "コメント"
+  }
+}
+###
+
+# 総合振込依頼データ照会 。総合振込依頼データの取引状況を照会する。
+GET {{url}}/bulk_transfers/{{transaction_id}}
+?client_id=00000000
+&contractor_id=0000000000000000AG0123456789A001
+&detail_info_necessity=true
+Authorization: {{authorization}}
+###
+
+# 総合振込依頼データ照会 。 総合振込依頼データの一覧を照会する。
+GET {{url}}/bulk_transfers/list
+?client_id=00000000
+&contractor_id=0000000000000000AG0123456789A001
+Authorization: {{authorization}}
+
+###
+
+# 給与・賞与振込依頼データ照会 。給与・賞与振込依頼データの取引状況を照会する。
+GET {{url}}/payroll_transfers/{{transaction_id}}
+?client_id=00000000
+&contractor_id=0000000000000000AG0123456789A001
+&detail_info_necessity=true
+Authorization: {{authorization}}
+###
+
+
+# 振込振替依頼データ照会 - 振込振替依頼データの取引状況を照会する。
+GET {{url}}/transfers/{{transaction_id}}
+?client_id=00000000
+&contractor_id=0000000000000000AG0123456789A001
+&detail_info_necessity=true
+Authorization: {{authorization}}
+###
+
+# 口座振替依頼データ照会 - 口座振替依頼データの取引状況を照会する。
+GET {{url}}/direct_debits/{{transaction_id}}
+?client_id=00000000
+&contractor_id=0000000000000000AG0123456789A001
+&transaction_category_type=1
+&detail_info_necessity=true
+Authorization: {{authorization}}
+###
+
+
+#Submissions(資金移動実行系業務)
+# 総合振込依頼データ承認 - 総合振込依頼データの承認を行う。
+POST  {{url}}/bulk_transfers/{{transaction_id}}/submissions
+Content-Type: application/json
+Authorization: {{authorization}}
+
+{
+  "client_id": "00000000",
+  "contractor_id": "0000000000000000AG0123456789A001",
+  "use_media": "1",
+  "approval_cancel_type": "approval_cancel",
+  "warning_check_type": "1100000000",
+  "warning_data_aprroval_flag": true,
+  "comment": "コメント"
+}
+###
+
+# 振込振替依頼データ承認 - 振込振替依頼データの承認を行う。
+POST  {{url}}/transfers/{{transaction_id}}/submissions
+Content-Type: application/json
+Authorization: {{authorization}}
+
+{
+  "client_id": "00000000",
+  "use_media": "1",
+  "contractor_id": "0000000000000000AG0123456789A001",
+  "temporary_transaction_id": "S17100700000016",
+  "transfer_cancel_type": "transfer_cancel",
+  "warning_data_aprroval_flag": true,
+  "warning_check_type": "1000000000",
+  "account_check": true,
+  "comment": "コメント"
+}
+
+
+###
+
+# 振込振替依頼データ実行 - 振込振替依頼データの実行を行う。
+POST  {{url}}/transfers_execution
+Content-Type: application/json
+Authorization: {{authorization}}
+
+{
+  "client_id": "00000000",
+  "use_media": "1",
+  "contractor_id": "0000000000000000AG0123456789A001",
+  "temporary_transaction_id": "S17100700000016",
+  "payment_number": "1234567ABC",
+  "transfer_cancel_flag": true,
+  "warning_data_execution_flag": true,
+  "warning_check_type": "1100000000",
+  "transfer_continue_type": "1010000000",
+  "account_check": true,
+  "execution_request_data": {
+    "transfer_designated_date": "2018-04-01",
+    "transaction_notes": "10月1日振込",
+    "transfer_identification_flag": "1",
+    "remitting_bank_code": "1234",
+    "remitting_bank_name": "1234ｷﾞﾝｺｳ",
+    "remitting_branch_code": "115",
+    "remitting_bank_branch_name": "ﾄｳｷｮｳﾎﾝﾃﾝ",
+    "remitting_account_type_code": "01",
+    "remitting_account_number": "1100001",
+    "remitter_name": "ABCｼｮｳｼﾞ",
+    "transactions": [
+      {
+        "item_id": "1",
+        "beneficiary_bank_code": "1234",
+        "beneficiary_bank_name": "1234ｷﾞﾝｺｳ",
+        "beneficiary_branch_code": "115",
+        "beneficiary_branch_name": "ﾄｳｷｮｳﾎﾝﾃﾝ",
+        "account_type_code": "01",
+        "account_number": "1100001",
+        "beneficiary_name": "123ｼﾖｳｶｲ",
+        "payment_amount": 100000,
+        "fee_paid_by_type": "0",
+        "payment_fee_of_beneficiary": 1000,
+        "edi_info": "01209315034789264425",
+        "edi_info_type": "1"
+      }
+    ],
+    "total_count": 1,
+    "total_amount": "100000"
+  }
+}
+
+###
+
+# 振込振替依頼データ実行 - 振込振替依頼データの実行を行う。
+POST  {{url}}/direct_debits/{{transaction_id}}/submissions
+Content-Type: application/json
+Authorization: {{authorization}}
+
+{
+  "client_id": "00000000",
+  "use_media": "1",
+  "contractor_id": "0000000000000000AG0123456789A001",
+  "transaction_category_type": "1",
+  "approval_cancel_type": "approval_cancel",
+  "warning_data_aprroval_flag": true,
+  "warning_check_type": "1000100000",
+  "comment": "コメント"
+}
+
+
+
+
+
+
+
+
+
+
