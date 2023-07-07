@@ -1,0 +1,118 @@
+#利用API
+# https://portal.opencanvas.ne.jp/api/bizsolapilist/
+
+@url=https://sample.apigw.opencanvas.ne.jp/bizsol/v1/banks/0034/
+
+@authorization = Bearer 7d0e8fddb23a40a2b5f73c2771e9c4c7
+
+
+# 企業情報照会
+GET {{url}}/corporations
+?client_id=22222222
+&contractor_id=0000000000000000AG0123456789A001
+&target_service=20
+Authorization: {{authorization}}
+
+###
+# 利用者情報照会
+GET {{url}}/users
+?client_id=22222222
+&contractor_id=0000000000000000AG0123456789A001
+&target_service=20
+Authorization: {{authorization}}
+
+
+###
+# 総合振込依頼データの登録
+POST  {{url}}/bulk_transfers
+Content-Type: application/json
+Authorization: {{authorization}}
+
+{
+  "client_id": "00000000",
+  "contractor_id": "0000000000000000AG0123456789A001",
+  "temporary_transaction_id": "S17100700000016",
+  "warning_data_fixed_flag": true,
+  "warning_check_type": "1100000000",
+  "extension_edi_utilization_flag": true,
+  "fixed_request_data": {
+    "transaction_notes": "10月1日振込",
+    "category_code": "21",
+    "remitter_code": "1234567891",
+    "remitter_name": "ABCｼｮｳｼﾞ",
+    "effort_date": "04-01",
+    "remitting_bank_code": "0034",
+    "remitting_bank_name": "seven bank",
+    "remitting_branch_code": "115",
+    "remitting_bank_branch_name": "秋葉原支店",
+    "remitting_account_type_code": "01",
+    "remitting_account_number": "1100001",
+    "dummy_header": "ｷﾝﾕｳｷｶﾝﾚﾝｹｲｼﾞｮｳﾎｳ",
+    "transactions": [
+      {
+        "item_id": "1",
+        "beneficiary_bank_code": "1234",
+        "beneficiary_bank_name": "1234ｷﾞﾝｺｳ",
+        "beneficiary_branch_code": "115",
+        "beneficiary_branch_name": "ﾄｳｷｮｳﾎﾝﾃﾝ",
+        "clearing_house_number": "0000",
+        "account_type_code": "01",
+        "account_number": "1100001",
+        "beneficiary_name": "123ｼﾖｳｶｲ",
+        "transfer_amount": 100000,
+        "new_code": "1",
+        "customer_code1": "0120931503",
+        "customer_code2": "4789264425",
+        "edi_info": "01209315034789264425",
+        "edi_xml": [
+          "支払通知番号:1111111111111↓支払通知発行日:2018年12月25日↓"
+        ],
+        "transfer_designated_type": "7",
+        "identification": "Y",
+        "dummy": "ﾀﾞﾐｰｴﾘｱ"
+      }
+    ],
+    "total_count": 10,
+    "total_amount": 200000,
+    "dummy_trailer": "ｷﾝﾕｳｷｶﾝﾚﾝｹｲｼﾞｮｳﾎｳ",
+    "approval_pattern_type": "single_approval",
+    "first_approver_code": "Z001",
+    "second_approver_code": "Z002",
+    "comment": "コメント"
+  }
+}
+
+###
+# 総合振込依頼データ照会
+GET {{url}}/bulk_transfers/list
+?client_id=00000000
+&contractor_id=0000000000000000AG0123456789A001
+Authorization: {{authorization}}
+
+###
+# 総合振込依頼データ承認
+@transaction_id = 161001000000001
+
+POST  {{url}}/bulk_transfers/{{transaction_id}}/submissions
+Content-Type: application/json
+Authorization: {{authorization}}
+
+{
+  "client_id": "00000000",
+  "contractor_id": "0000000000000000AG0123456789A001",
+  "use_media": "1",
+  "approval_cancel_type": "approval_cancel",
+  "warning_check_type": "1100000000",
+  "warning_data_aprroval_flag": true,
+  "comment": "コメント"
+}
+
+
+
+
+
+
+
+
+
+
